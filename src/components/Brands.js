@@ -1,18 +1,11 @@
 import React, { Component } from "react";
-import {
-  Container,
-  Box,
-  Heading,
-  Card,
-  Image,
-  Text,
-  SearchField,
-  Icon
-} from "gestalt";
+// prettier-ignore
+import { Container, Box, Heading, Card, Image, Text, SearchField, Icon } from "gestalt";
 import { Link } from "react-router-dom";
+import "./App.css";
 import Strapi from "strapi-sdk-javascript/build/main";
-const apiURL = process.env.API_URL || "http://localhost:1337";
-const strapi = new Strapi(apiURL);
+const apiUrl = process.env.API_URL || "http://localhost:1337";
+const strapi = new Strapi(apiUrl);
 
 class Brands extends Component {
   state = {
@@ -21,52 +14,56 @@ class Brands extends Component {
   };
 
   async componentDidMount() {
-    const response = await strapi.request("POST", "/graphql", {
-      data: {
-        query: `query{
-                    brands{
-                            _id
-                            name
-                            description
-                            createdAt
-                            image{
-                                name
-                            url
-                        }
-  }
-}`
-      }
-    });
-    console.log(response);
-    this.setState({ brands: response.data.brands });
+    try {
+      const response = await strapi.request("POST", "/graphql", {
+        data: {
+          query: `query {
+            brands {
+              _id
+              name
+              description
+              image {
+                url
+              }
+            }
+          }`
+        }
+      });
+      // console.log(response);
+      this.setState({ brands: response.data.brands });
+    } catch (err) {
+      console.error(err);
+    }
   }
 
-  // Take search Input
   handleChange = ({ value }) => {
-    console.log(value);
     this.setState({ searchTerm: value });
   };
 
-  //Filter according to brands
-  filteredBrands(search) {
-    this.state.brands.filter(brand => {
-      return brand.name.toLowerCase().includes(search.toLowerCase());
+  filteredBrands = ({ searchTerm, brands }) => {
+    return brands.filter(brand => {
+      return (
+        brand.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        brand.description.toLowerCase().includes(searchTerm.toLowerCase())
+      );
     });
-  }
+  };
 
   render() {
-    const { brands, searchTerm } = this.state;
+    const { searchTerm } = this.state;
+
     return (
       <Container>
-        {/* Brand Search Field */}
+        {/* Brands Search Field */}
         <Box display="flex" justifyContent="center" marginTop={4}>
           <SearchField
             id="searchField"
-            accessibilityLabel="Brand Search Field"
+            accessibilityLabel="Brands Search Field"
             onChange={this.handleChange}
+            value={searchTerm}
             placeholder="Search Brands"
           />
-          <Box margin={2}>
+          <Box margin={3}>
             <Icon
               icon="heart"
               color={searchTerm ? "red" : "gray"}
@@ -76,7 +73,7 @@ class Brands extends Component {
           </Box>
         </Box>
 
-        {/* Brands section */}
+        {/* Brands Section */}
         <Box display="flex" justifyContent="center" marginBottom={2}>
           {/* Brands Header */}
           <Heading color="midnight" size="md">
@@ -95,8 +92,8 @@ class Brands extends Component {
           display="flex"
           justifyContent="around"
         >
-          {this.filteredBrands(this.state.searchTerm).map(brand => (
-            <Box paddingY={2} margin={2} width={200} key={brand._id}>
+          {this.filteredBrands(this.state).map(brand => (
+            <Box paddingY={4} margin={2} width={200} key={brand._id}>
               <Card
                 image={
                   <Box height={200} width={200}>
@@ -105,14 +102,14 @@ class Brands extends Component {
                       alt="Brand"
                       naturalHeight={1}
                       naturalWidth={1}
-                      src={`${apiURL}${brand.image[0].url}`}
+                      src={`${apiUrl}${brand.image[0].url}`}
                     />
                   </Box>
                 }
               >
                 <Box
                   display="flex"
-                  alignContent="center"
+                  alignItems="center"
                   justifyContent="center"
                   direction="column"
                 >
@@ -121,7 +118,7 @@ class Brands extends Component {
                   </Text>
                   <Text>{brand.description}</Text>
                   <Text bold size="xl">
-                    <Link to={`${brand._id}`}>See Product</Link>
+                    <Link to={`/${brand._id}`}>See Brews</Link>
                   </Text>
                 </Box>
               </Card>

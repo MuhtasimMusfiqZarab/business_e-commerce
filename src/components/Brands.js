@@ -1,5 +1,14 @@
 import React, { Component } from "react";
-import { Container, Box, Heading, Card, Image, Text } from "gestalt";
+import {
+  Container,
+  Box,
+  Heading,
+  Card,
+  Image,
+  Text,
+  SearchField,
+  Icon
+} from "gestalt";
 import { Link } from "react-router-dom";
 import Strapi from "strapi-sdk-javascript/build/main";
 const apiURL = process.env.API_URL || "http://localhost:1337";
@@ -7,7 +16,8 @@ const strapi = new Strapi(apiURL);
 
 class Brands extends Component {
   state = {
-    brands: []
+    brands: [],
+    searchTerm: ""
   };
 
   async componentDidMount() {
@@ -31,10 +41,33 @@ class Brands extends Component {
     this.setState({ brands: response.data.brands });
   }
 
+  handleChange = ({ value }) => {
+    console.log(value);
+    this.setState({ searchTerm: value });
+  };
+
   render() {
     const { brands } = this.state;
     return (
       <Container>
+        {/* Brand Search Field */}
+        <Box display="flex" justifyContent="center" marginTop={4}>
+          <SearchField
+            id="searchField"
+            accessibilityLabel="Brand Search Field"
+            onChange={this.handleChange}
+            placeholder="Search Brands"
+          />
+          <Box margin={2}>
+            <Icon
+              icon="heart"
+              color={this.state.searchTerm ? "red" : "gray"}
+              size={20}
+              accessibilityLabel="Filter"
+            />
+          </Box>
+        </Box>
+
         {/* Brands section */}
         <Box display="flex" justifyContent="center" marginBottom={2}>
           {/* Brands Header */}
@@ -43,13 +76,24 @@ class Brands extends Component {
           </Heading>
         </Box>
         {/* Brands */}
-        <Box display="flex" justifyContent="around">
+        <Box
+          dangerouslySetInlineStyle={{
+            __style: {
+              backgroundColor: "#d6c8ec"
+            }
+          }}
+          shape="rounded"
+          wrap
+          display="flex"
+          justifyContent="around"
+        >
           {brands.map(brand => (
-            <Box margin={2} width={200} key={brand._id}>
+            <Box paddingY={2} margin={2} width={200} key={brand._id}>
               <Card
                 image={
                   <Box height={200} width={200}>
                     <Image
+                      fit="cover"
                       alt="Brand"
                       naturalHeight={1}
                       naturalWidth={1}

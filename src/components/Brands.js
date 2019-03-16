@@ -41,13 +41,21 @@ class Brands extends Component {
     this.setState({ brands: response.data.brands });
   }
 
+  // Take search Input
   handleChange = ({ value }) => {
     console.log(value);
     this.setState({ searchTerm: value });
   };
 
+  //Filter according to brands
+  filteredBrands(search) {
+    this.state.brands.filter(brand => {
+      return brand.name.toLowerCase().includes(search.toLowerCase());
+    });
+  }
+
   render() {
-    const { brands } = this.state;
+    const { brands, searchTerm } = this.state;
     return (
       <Container>
         {/* Brand Search Field */}
@@ -61,7 +69,7 @@ class Brands extends Component {
           <Box margin={2}>
             <Icon
               icon="heart"
-              color={this.state.searchTerm ? "red" : "gray"}
+              color={searchTerm ? "red" : "gray"}
               size={20}
               accessibilityLabel="Filter"
             />
@@ -87,7 +95,7 @@ class Brands extends Component {
           display="flex"
           justifyContent="around"
         >
-          {brands.map(brand => (
+          {this.filteredBrands(this.state.searchTerm).map(brand => (
             <Box paddingY={2} margin={2} width={200} key={brand._id}>
               <Card
                 image={

@@ -5,6 +5,7 @@ import SignIn from "./SignIn";
 import Checkout from "./Checkout";
 import SignUp from "./SignUp";
 import Navbar from "./Navbar";
+import Brands from "./Brands";
 // import history from "../history";
 
 class App extends Component {
@@ -15,7 +16,8 @@ class App extends Component {
           <React.Fragment>
             <Navbar />
             <Switch>
-              <Route path="/signin" exact component={SignIn} />
+              <Route path="/" exact component={Brands} />
+              <Route path="/signin" component={SignIn} />
               <Route path="/signup" component={SignUp} />
               <Route path="/checkout" component={Checkout} />
             </Switch>

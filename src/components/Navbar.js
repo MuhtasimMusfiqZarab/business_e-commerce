@@ -9,7 +9,7 @@ const Navbar = () => {
       alignItems="center"
       justifyContent="around"
       height={70}
-      color="olive"
+      color="midnight"
       padding={1}
       shape="roundedBottom"
     >

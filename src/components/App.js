@@ -6,6 +6,7 @@ import Checkout from "./Checkout";
 import SignUp from "./SignUp";
 import Navbar from "./Navbar";
 import Brands from "./Brands";
+import Products from "./Products";
 // import history from "../history";
 
 class App extends Component {
@@ -20,6 +21,7 @@ class App extends Component {
               <Route path="/signin" component={SignIn} />
               <Route path="/signup" component={SignUp} />
               <Route path="/checkout" component={Checkout} />
+              <Route path="/:brandId" component={Products} />
             </Switch>
           </React.Fragment>
         </Router>

@@ -2,7 +2,8 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import Strapi from "strapi-sdk-javascript/build/main";
 // prettier-ignore
-import {Box,Heading,Text,Image,Card,Button,Mask} from "gestalt";
+import {Box,Heading,Text,Image,Card,Button,Mask, IconButton} from "gestalt";
+import { calculatePrice } from "../utils";
 const apiUrl = process.env.API_URL || "http://localhost:1337";
 const strapi = new Strapi(apiUrl);
 
@@ -45,6 +46,31 @@ class Products extends Component {
       console.error(err);
     }
   }
+
+  addToCart = product => {
+    const alreadyInCart = this.state.cartItems.findIndex(
+      item => item._id === product._id
+    );
+    if (alreadyInCart === -1) {
+      const updatedItems = this.state.cartItems.concat({
+        ...product,
+        quantity: 1
+      });
+      this.setState({ cartItems: updatedItems });
+    } else {
+      const updatedItems = [...this.state.cartItems];
+      updatedItems[alreadyInCart].quantity += 1;
+      this.setState({ cartItems: updatedItems });
+    }
+  };
+
+  deleteItemFromCart = itemToDeleteId => {
+    const filteredItems = this.state.cartItems.filter(
+      item => item._id !== itemToDeleteId
+    );
+    this.setState({ cartItems: filteredItems });
+  };
+
   render() {
     const { brand, products, cartItems } = this.state;
     return (
@@ -109,7 +135,11 @@ class Products extends Component {
 
                     <Box marginTop={2}>
                       <Text bold size="xl">
-                        <Button color="blue" text="Add to Cart" />
+                        <Button
+                          onClick={() => this.addToCart(product)}
+                          color="blue"
+                          text="Add to Cart"
+                        />
                       </Text>
                     </Box>
                   </Box>
@@ -128,7 +158,7 @@ class Products extends Component {
               padding={2}
             >
               {/* User card Heading */}
-              <Heading align="center" size="md">
+              <Heading align="center" size="sm">
                 Your Cart
               </Heading>
               <Text color="gray" italic>
@@ -136,6 +166,23 @@ class Products extends Component {
               </Text>
 
               {/* Cart Items(will add) */}
+
+              {cartItems.map(item => (
+                <Box key={item._id} display="flex" alignItems="center">
+                  <Text>
+                    {item.name} -> {item.quantity} -{" "}
+                    {(item.quantity * item.price).toFixed(2)}
+                  </Text>
+                  <IconButton
+                    accessibilityLabel="Delete Item"
+                    icon="cancel"
+                    size="sm"
+                    iconColor="red"
+                    onClick={() => this.deleteItemFromCart(item._id)}
+                  />
+                </Box>
+              ))}
+
               <Box
                 display="flex"
                 alignItems="center"
@@ -147,7 +194,7 @@ class Products extends Component {
                     <Text color="red">Please Select Some Items</Text>
                   )}
                 </Box>
-                <Text size="lg"> Total Taka 3.99/-</Text>
+                <Text size="lg"> Total Taka {calculatePrice(cartItems)}/-</Text>
                 <Text>
                   <Link to="/checkout">checkout</Link>
                 </Text>

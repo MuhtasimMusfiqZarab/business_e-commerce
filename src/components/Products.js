@@ -1,14 +1,16 @@
 import React, { Component } from "react";
+import { Link } from "react-router-dom";
 import Strapi from "strapi-sdk-javascript/build/main";
 // prettier-ignore
-import {Box,Heading,Text,Image,Card,Button} from "gestalt";
+import {Box,Heading,Text,Image,Card,Button,Mask} from "gestalt";
 const apiUrl = process.env.API_URL || "http://localhost:1337";
 const strapi = new Strapi(apiUrl);
 
 class Products extends Component {
   state = {
     products: [],
-    brand: ""
+    brand: "",
+    cartItems: []
   };
 
   async componentDidMount() {
@@ -44,13 +46,18 @@ class Products extends Component {
     }
   }
   render() {
-    const { brand, products } = this.state;
+    const { brand, products, cartItems } = this.state;
     return (
       <Box
         marginTop={4}
         display="flex"
         justifyContent="center"
         alignItems="start"
+        dangerouslySetInlineStyle={{
+          __style: {
+            flexWrap: "wrap-reverse"
+          }
+        }}
       >
         {/* Products section */}
         <Box display="flex" direction="column" alignItems="center">
@@ -110,6 +117,43 @@ class Products extends Component {
               </Box>
             ))}
           </Box>
+        </Box>
+        {/* user cart */}
+        <Box alignSelf="end" marginTop={2} marginLeft={8}>
+          <Mask shape="rounded" wash>
+            <Box
+              display="flex"
+              direction="column"
+              alignItems="center"
+              padding={2}
+            >
+              {/* User card Heading */}
+              <Heading align="center" size="md">
+                Your Cart
+              </Heading>
+              <Text color="gray" italic>
+                {cartItems.length} items selected
+              </Text>
+
+              {/* Cart Items(will add) */}
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                direction="column"
+              >
+                <Box margin={2}>
+                  {cartItems.length === 0 && (
+                    <Text color="red">Please Select Some Items</Text>
+                  )}
+                </Box>
+                <Text size="lg"> Total Taka 3.99/-</Text>
+                <Text>
+                  <Link to="/checkout">checkout</Link>
+                </Text>
+              </Box>
+            </Box>
+          </Mask>
         </Box>
       </Box>
     );

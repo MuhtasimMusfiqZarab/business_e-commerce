@@ -1,6 +1,11 @@
 import React, { Component } from "react";
 import { Container, Box, Button, Heading, Text, TextField } from "gestalt";
+import { setToken } from "../utils";
 import ToastMessage from "./ToastMessage";
+import Strapi from "strapi-sdk-javascript/build/main";
+
+const apiUrl = process.env.API_URL || "http://localhost:1337";
+const strapi = new Strapi(apiUrl);
 
 class SignUp extends Component {
   state = {
@@ -11,7 +16,8 @@ class SignUp extends Component {
     t_size: "",
     waistSize: "",
     toast: false,
-    toastMessage: ""
+    toastMessage: "",
+    loading: false
   };
 
   handleChange = ({ event, value }) => {
@@ -19,13 +25,41 @@ class SignUp extends Component {
     this.setState({ [event.target.name]: value });
   };
 
-  handleSubmit = event => {
+  handleSubmit = async event => {
     event.preventDefault();
+    const { username, email, password } = this.state;
+
     if (this.isFormEmpty(this.state)) {
       this.showToast("Fill in all the fields");
       return;
     }
-    console.log("Submitted");
+    // Sign up a user
+    try {
+      //set loading -true
+      this.setState({ loading: true });
+
+      //make request to register user with strapi
+      const response = await strapi.register(username, email, password);
+      //Set loading flase
+      this.setState({ loading: false });
+
+      //put token (to manage user session ) in local storage
+      setToken(response.jwt);
+      console.log(response);
+
+      //redirect user to homepage
+      this.redirectUser("/");
+    } catch (err) {
+      //set loading - flase
+      this.setState({ loading: false });
+      //show the error with toast message
+      this.showToast(err.message);
+    }
+  };
+
+  // redirection user
+  redirectUser = path => {
+    this.props.history.push(path);
   };
 
   // Basic Validation
@@ -39,7 +73,7 @@ class SignUp extends Component {
   };
 
   render() {
-    const { toastMessage, toast } = this.state;
+    const { toastMessage, toast, loading } = this.state;
     return (
       <Container>
         <Box
@@ -124,7 +158,13 @@ class SignUp extends Component {
               placeholder="Waist size"
               onChange={this.handleChange}
             />
-            <Button inline color="blue" text="Submit" type="submit" />
+            <Button
+              inline
+              disabled={loading}
+              color="blue"
+              text="Submit"
+              type="submit"
+            />
           </form>
         </Box>
         <ToastMessage show={toast} message={toastMessage} />
